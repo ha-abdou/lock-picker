@@ -15,6 +15,10 @@
     "reset": "git clean -f -d -X",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ha-abdou/lock-picker.git"
+  },
   "author": "Hassaine abdel-illah",
   "license": "MIT",
   "dependencies": {
