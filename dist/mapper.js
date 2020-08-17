@@ -18,7 +18,7 @@ class Mapper {
                 // @ts-ignore
                 return this[node.type](node);
             }
-            throw new TypeError(node.type + " not managed yet");
+            // throw new TypeError(node.type + " not managed yet");
             return node;
         };
         this.setIdentifiers = (identifiers) => (this.identifiers = identifiers);

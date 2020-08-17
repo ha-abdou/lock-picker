@@ -4,12 +4,14 @@ const parser_1 = require("@babel/parser");
 const generator_1 = require("@babel/generator");
 const mapper_1 = require("./mapper");
 const generatoWithCache_1 = require("./generatoWithCache");
+exports.Helpers = require("./helpers");
 class LockPicker {
     constructor(expression) {
         this.constants = {};
         this.functions = {};
         this.generatorFunctions = {};
         this.generatorInstances = {};
+        this.modules = {};
         this.mapper = new mapper_1.default();
         this.compiledExpression = "";
         this.done = false;
@@ -38,7 +40,11 @@ class LockPicker {
                 }
                 return (_d = (_c = this.generatorInstances)[name]) === null || _d === void 0 ? void 0 : _d.call(_c).value;
             };
-            const res = eval("(" + this.compiledExpression + ")");
+            let modules = "";
+            for (const name in this.modules) {
+                modules += `const ${name} = this.modules['${name}'];`;
+            }
+            const res = eval(`${modules} (${this.compiledExpression})`);
             this.next();
             return res;
         };
@@ -60,6 +66,7 @@ class LockPicker {
             const realName = name.replace(/^\_[0-9]+\_/, "");
             this.generatorInstances[name] = generatoWithCache_1.default(this.generatorFunctions[realName], ...args);
         };
+        this.injectModule = (name, module) => (this.modules[name] = module);
         this.addFunction = (key, func) => {
             if (func.constructor.name === "GeneratorFunction") {
                 this.generatorFunctions[key] = func;

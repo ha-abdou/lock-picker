@@ -1,6 +1,7 @@
 import { Expression, Node } from "@babel/types";
 import Mapper from "./mapper";
 import { TGeneratorWithCache } from "./generatoWithCache";
+export * as Helpers from "./helpers";
 declare type ILiteralValue = string | number | boolean | IJson | IJsonArray;
 interface IJson {
     [x: string]: string | number | boolean | IJson | IJsonArray;
@@ -13,7 +14,7 @@ export interface IConstants {
 interface IFunctions {
     [key: string]: (...args: any) => any;
 }
-interface IgeneratorInstances {
+interface IGeneratorInstances {
     [key: string]: TGeneratorWithCache | null;
 }
 interface IGeneratorFunctions {
@@ -25,7 +26,10 @@ declare class LockPicker {
     constants: IConstants;
     functions: IFunctions;
     generatorFunctions: IGeneratorFunctions;
-    generatorInstances: IgeneratorInstances;
+    generatorInstances: IGeneratorInstances;
+    modules: {
+        [name: string]: any;
+    };
     mapper: Mapper;
     mappedTree: Node | undefined;
     compiledExpression: string;
@@ -35,6 +39,7 @@ declare class LockPicker {
     get: () => any;
     next: () => boolean;
     initGenerator: (name: string, ...args: any) => void;
+    injectModule: (name: string, module: any) => any;
     addFunction: (key: string, func: (...args: any) => any | (() => Generator)) => void;
     addGeneratorFunction: (key: string, generatorFunc: () => Generator<any>) => () => Generator<any>;
     addConst: (key: string, value: ILiteralValue) => string | number | boolean | IJson | IJsonArray;

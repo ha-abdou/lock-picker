@@ -5,6 +5,7 @@ import Mapper from "./mapper";
 import functionGeneratorWithCache, {
   TGeneratorWithCache,
 } from "./generatoWithCache";
+export * as Helpers from "./helpers";
 
 type ILiteralValue = string | number | boolean | IJson | IJsonArray;
 
