@@ -1,0 +1,29 @@
+{
+  "name": "lock-picker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "start:dev": "nodemon",
+    "build": "tsc",
+    "deploy": "tsc && npm publish",
+    "reset": "git clean -f -d -X",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Hassaine abdel-illah",
+  "license": "MIT",
+  "dependencies": {
+    "@babel/generator": "^7.11.0",
+    "@babel/parser": "^7.11.3"
+  },
+  "devDependencies": {
+    "@babel/types": "^7.11.0",
+    "nodemon": "^2.0.4",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.7"
+  }
+}
