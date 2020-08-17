@@ -22,7 +22,7 @@ interface IFunctions {
   [key: string]: (...args: any) => any;
 }
 
-interface IgeneratorInstances {
+interface IGeneratorInstances {
   [key: string]: TGeneratorWithCache | null;
 }
 
@@ -36,7 +36,8 @@ class LockPicker {
   constants: IConstants = {};
   functions: IFunctions = {};
   generatorFunctions: IGeneratorFunctions = {};
-  generatorInstances: IgeneratorInstances = {};
+  generatorInstances: IGeneratorInstances = {};
+  modules: { [name: string]: any } = {};
   mapper = new Mapper();
   mappedTree: Node | undefined;
   compiledExpression: string = "";
@@ -84,8 +85,11 @@ class LockPicker {
       }
       return this.generatorInstances[name]?.().value;
     };
-    const res = eval("(" + this.compiledExpression + ")");
-
+    let modules = "";
+    for (const name in this.modules) {
+      modules += `const ${name} = this.modules['${name}'];`;
+    }
+    const res = eval(`${modules} (${this.compiledExpression})`);
     this.next();
     return res;
   };
@@ -114,6 +118,8 @@ class LockPicker {
       ...args
     );
   };
+
+  injectModule = (name: string, module: any) => (this.modules[name] = module);
 
   addFunction = (
     key: string,
