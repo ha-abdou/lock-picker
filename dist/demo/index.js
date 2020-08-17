@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const index_1 = require("../index");
+console.clear();
 // js expression
 const lockPicker = new index_1.default(`{
   url: urlBase + users() + "/" + users() + "/" + $lang(),

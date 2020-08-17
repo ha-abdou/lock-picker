@@ -11,6 +11,7 @@
     "start:dev": "nodemon",
     "build": "tsc",
     "deploy": "tsc && npm publish",
+    "push": "tsc && git push origin HEAD",
     "reset": "git clean -f -d -X",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
