@@ -1,6 +1,6 @@
 {
   "name": "pick-locker",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -12,7 +12,7 @@
     "build": "tsc",
     "deploy": "tsc && npm publish",
     "reset": "git clean -f -d -X",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -25,9 +25,15 @@
     "@babel/parser": "^7.11.3"
   },
   "devDependencies": {
+    "@babel/core": "^7.11.4",
+    "@babel/preset-env": "^7.11.0",
+    "@babel/preset-typescript": "^7.10.4",
     "@babel/types": "^7.11.0",
+    "@types/jest": "^26.0.10",
     "@types/node": "^14.0.27",
+    "babel-jest": "^26.3.0",
     "faker": "^4.1.0",
+    "jest": "^26.4.2",
     "nodemon": "^2.0.4",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.7"
