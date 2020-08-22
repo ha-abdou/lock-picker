@@ -7,13 +7,29 @@ import functionGeneratorWithCache, {
 } from "./generatoWithCache";
 export * as Helpers from "./helpers";
 
-type ILiteralValue = string | number | boolean | IJson | IJsonArray;
+type ILiteralValue =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | IJson
+  | IJsonArray;
 
 interface IJson {
-  [x: string]: string | number | boolean | IJson | IJsonArray;
+  [x: string]:
+    | string
+    | number
+    | boolean
+    | null
+    | undefined
+    | IJson
+    | IJsonArray;
 }
 interface IJsonArray
-  extends Array<string | number | boolean | IJson | IJsonArray> {}
+  extends Array<
+    string | number | null | undefined | boolean | IJson | IJsonArray
+  > {}
 
 export interface IConstants {
   [key: string]: ILiteralValue;

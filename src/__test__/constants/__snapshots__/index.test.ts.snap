@@ -1,0 +1,65 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Constants:  array 1`] = `
+Array [
+  Array [
+    "sss",
+    777,
+    false,
+    null,
+    undefined,
+  ],
+]
+`;
+
+exports[`Constants:  boolean 1`] = `
+Array [
+  true,
+]
+`;
+
+exports[`Constants:  json 1`] = `
+Array [
+  Object {
+    "array": Array [
+      "sss",
+      777,
+      false,
+      null,
+      undefined,
+    ],
+    "boolean": false,
+    "null": null,
+    "number": 111,
+    "object": Object {
+      "ee": 3,
+    },
+    "string": "111",
+    "undefined": undefined,
+  },
+]
+`;
+
+exports[`Constants:  null 1`] = `
+Array [
+  null,
+]
+`;
+
+exports[`Constants:  number 1`] = `
+Array [
+  111,
+]
+`;
+
+exports[`Constants:  string 1`] = `
+Array [
+  "xxx",
+]
+`;
+
+exports[`Constants:  undefined 1`] = `
+Array [
+  undefined,
+]
+`;
