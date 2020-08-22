@@ -28,7 +28,7 @@ interface IGeneratorInstances {
 }
 
 interface IGeneratorFunctions {
-  [key: string]: () => Generator<any>;
+  [key: string]: (...args: any) => Generator<any>;
 }
 
 class LockPicker {
@@ -61,13 +61,9 @@ class LockPicker {
     this.mappedTree = this.mapper.map(this.expression);
     this.compiledExpression = generate(this.mappedTree as Node).code;
     this.mapper.generatorCalls.sort((a, b) => a.depth - b.depth);
-    this.mapper.generatorCalls = this.mapper.generatorCalls.map((call) => {
-      this.generatorInstances[`_${call.id}_${call.name}`] = null;
-      return {
-        ...call,
-        name: `_${call.id}_${call.name}`,
-      };
-    });
+    this.mapper.generatorCalls.map(
+      (call) => (this.generatorInstances[call.instanceName] = null)
+    );
   };
 
   get = (): any => {
@@ -77,14 +73,18 @@ class LockPicker {
     const getVar = (name: string) => this.constants[name];
     const callFunc = (name: string, ...args: any) =>
       this.functions[name](...args);
-    const callGeneratorFunc = (name: string, ...args: any) => {
+    const callGeneratorFunc = (
+      funcName: string,
+      instanceName: string,
+      ...args: any
+    ) => {
       if (
-        this.generatorInstances[name] === null ||
-        this.generatorInstances[name]?.().done
+        this.generatorInstances[instanceName] === null ||
+        this.generatorInstances[instanceName]?.().done
       ) {
-        this.initGenerator(name, ...args);
+        this.initGenerator(funcName, instanceName, ...args);
       }
-      return this.generatorInstances[name]?.().value;
+      return this.generatorInstances[instanceName]?.().value;
     };
     let modules = "";
     for (const name in this.modules) {
@@ -99,10 +99,12 @@ class LockPicker {
     const callsLength = this.mapper.generatorCalls.length;
 
     for (let i = 0; i < callsLength; i++) {
-      const call = this.mapper.generatorCalls[i];
+      const { sync, instanceName, funcName } = this.mapper.generatorCalls[i];
 
-      this.generatorInstances[call.name]?._next();
-      if (this.generatorInstances[call.name]?.().done) {
+      if (
+        (sync && this.syncGeneratorIterate(funcName)) ||
+        (!sync && this.generatorIterate(instanceName))
+      ) {
         continue;
       }
       return true;
@@ -111,30 +113,38 @@ class LockPicker {
     return false;
   };
 
-  initGenerator = (name: string, ...args: any) => {
-    const realName = name.replace(/^\_[0-9]+\_/, "");
+  syncGeneratorIterate = (funcName: string) => {
+    let done: boolean | undefined = false;
 
-    this.generatorInstances[name] = functionGeneratorWithCache(
-      this.generatorFunctions[realName],
+    this.mapper.generatorCalls.map((cc) => {
+      if (cc.funcName === funcName && this.generatorIterate(cc.instanceName)) {
+        done = true;
+      }
+    });
+    return done;
+  };
+
+  generatorIterate = (instanceName: string) => {
+    this.generatorInstances[instanceName]?._next();
+    return this.generatorInstances[instanceName]?.().done;
+  };
+
+  initGenerator = (funcName: string, instanceName: string, ...args: any) => {
+    this.generatorInstances[instanceName] = functionGeneratorWithCache(
+      this.generatorFunctions[funcName],
       ...args
     );
   };
 
   injectModule = (name: string, module: any) => (this.modules[name] = module);
 
-  addFunction = (
-    key: string,
-    func: (...args: any) => any | (() => Generator)
-  ) => {
-    if (func.constructor.name === "GeneratorFunction") {
-      this.generatorFunctions[key] = (func as unknown) as () => Generator<any>;
-      return;
-    }
-    this.functions[key] = func;
-  };
+  addFunction = (key: string, func: (...args: any) => any) =>
+    (this.functions[key] = func);
 
-  addGeneratorFunction = (key: string, generatorFunc: () => Generator<any>) =>
-    (this.generatorFunctions[key] = generatorFunc);
+  addGeneratorFunction = (
+    key: string,
+    generatorFunc: (...args: any) => Generator<any>
+  ) => (this.generatorFunctions[key] = generatorFunc);
 
   addConst = (key: string, value: ILiteralValue) =>
     (this.constants[key] = value);

@@ -21,13 +21,18 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const index_1 = __importStar(require("../index"));
 console.clear();
-const lockPicker = new index_1.default(`{
-  url: lang() + "-" + $lang() + "-" + $lang(),
-}`);
+const lockPicker = new index_1.default(`$echo(lang()) + ' : ' + $echo(lang())`);
+function* echo(str) {
+    let i = 1;
+    yield `${i++} - ${str}`;
+    yield `${i++} - ${str}`;
+    yield `${i++} - ${str}`;
+}
+lockPicker.addGeneratorFunction("$echo", echo);
 lockPicker.addGeneratorFunction("lang", index_1.Helpers.iterate(["fr", "en"]));
 lockPicker.addGeneratorFunction("$lang", index_1.Helpers.iterate(["fr", "en"]));
 lockPicker.compile();
 while (!lockPicker.done) {
     console.log(lockPicker.get());
 }
-//# sourceMappingURL=helpers.js.map
+//# sourceMappingURL=syncGeneratorFunction.js.map

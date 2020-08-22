@@ -1,10 +1,32 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const parser_1 = require("@babel/parser");
-const generator_1 = require("@babel/generator");
-const mapper_1 = require("./mapper");
-const generatoWithCache_1 = require("./generatoWithCache");
-exports.Helpers = require("./helpers");
+const generator_1 = __importDefault(require("@babel/generator"));
+const mapper_1 = __importDefault(require("./mapper"));
+const generatoWithCache_1 = __importDefault(require("./generatoWithCache"));
+exports.Helpers = __importStar(require("./helpers"));
 class LockPicker {
     constructor(expression) {
         this.constants = {};
@@ -22,10 +44,7 @@ class LockPicker {
             this.mappedTree = this.mapper.map(this.expression);
             this.compiledExpression = generator_1.default(this.mappedTree).code;
             this.mapper.generatorCalls.sort((a, b) => a.depth - b.depth);
-            this.mapper.generatorCalls = this.mapper.generatorCalls.map((call) => {
-                this.generatorInstances[`_${call.id}_${call.name}`] = null;
-                return Object.assign(Object.assign({}, call), { name: `_${call.id}_${call.name}` });
-            });
+            this.mapper.generatorCalls.map((call) => (this.generatorInstances[call.instanceName] = null));
         };
         this.get = () => {
             if (this.done) {
@@ -33,12 +52,12 @@ class LockPicker {
             }
             const getVar = (name) => this.constants[name];
             const callFunc = (name, ...args) => this.functions[name](...args);
-            const callGeneratorFunc = (name, ...args) => {
+            const callGeneratorFunc = (funcName, instanceName, ...args) => {
                 var _a, _b, _c, _d;
-                if (this.generatorInstances[name] === null || ((_b = (_a = this.generatorInstances)[name]) === null || _b === void 0 ? void 0 : _b.call(_a).done)) {
-                    this.initGenerator(name, ...args);
+                if (this.generatorInstances[instanceName] === null || ((_b = (_a = this.generatorInstances)[instanceName]) === null || _b === void 0 ? void 0 : _b.call(_a).done)) {
+                    this.initGenerator(funcName, instanceName, ...args);
                 }
-                return (_d = (_c = this.generatorInstances)[name]) === null || _d === void 0 ? void 0 : _d.call(_c).value;
+                return (_d = (_c = this.generatorInstances)[instanceName]) === null || _d === void 0 ? void 0 : _d.call(_c).value;
             };
             let modules = "";
             for (const name in this.modules) {
@@ -49,12 +68,11 @@ class LockPicker {
             return res;
         };
         this.next = () => {
-            var _a, _b, _c;
             const callsLength = this.mapper.generatorCalls.length;
             for (let i = 0; i < callsLength; i++) {
-                const call = this.mapper.generatorCalls[i];
-                (_a = this.generatorInstances[call.name]) === null || _a === void 0 ? void 0 : _a._next();
-                if ((_c = (_b = this.generatorInstances)[call.name]) === null || _c === void 0 ? void 0 : _c.call(_b).done) {
+                const { sync, instanceName, funcName } = this.mapper.generatorCalls[i];
+                if ((sync && this.syncGeneratorIterate(funcName)) ||
+                    (!sync && this.generatorIterate(instanceName))) {
                     continue;
                 }
                 return true;
@@ -62,18 +80,25 @@ class LockPicker {
             this.done = true;
             return false;
         };
-        this.initGenerator = (name, ...args) => {
-            const realName = name.replace(/^\_[0-9]+\_/, "");
-            this.generatorInstances[name] = generatoWithCache_1.default(this.generatorFunctions[realName], ...args);
+        this.syncGeneratorIterate = (funcName) => {
+            let done = false;
+            this.mapper.generatorCalls.map((cc) => {
+                if (cc.funcName === funcName && this.generatorIterate(cc.instanceName)) {
+                    done = true;
+                }
+            });
+            return done;
+        };
+        this.generatorIterate = (instanceName) => {
+            var _a, _b, _c;
+            (_a = this.generatorInstances[instanceName]) === null || _a === void 0 ? void 0 : _a._next();
+            return (_c = (_b = this.generatorInstances)[instanceName]) === null || _c === void 0 ? void 0 : _c.call(_b).done;
+        };
+        this.initGenerator = (funcName, instanceName, ...args) => {
+            this.generatorInstances[instanceName] = generatoWithCache_1.default(this.generatorFunctions[funcName], ...args);
         };
         this.injectModule = (name, module) => (this.modules[name] = module);
-        this.addFunction = (key, func) => {
-            if (func.constructor.name === "GeneratorFunction") {
-                this.generatorFunctions[key] = func;
-                return;
-            }
-            this.functions[key] = func;
-        };
+        this.addFunction = (key, func) => (this.functions[key] = func);
         this.addGeneratorFunction = (key, generatorFunc) => (this.generatorFunctions[key] = generatorFunc);
         this.addConst = (key, value) => (this.constants[key] = value);
         this.setFunctions = (func) => {

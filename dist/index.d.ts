@@ -18,7 +18,7 @@ interface IGeneratorInstances {
     [key: string]: TGeneratorWithCache | null;
 }
 interface IGeneratorFunctions {
-    [key: string]: () => Generator<any>;
+    [key: string]: (...args: any) => Generator<any>;
 }
 declare class LockPicker {
     rawExpression: string;
@@ -38,10 +38,12 @@ declare class LockPicker {
     compile: () => void;
     get: () => any;
     next: () => boolean;
-    initGenerator: (name: string, ...args: any) => void;
+    syncGeneratorIterate: (funcName: string) => boolean;
+    generatorIterate: (instanceName: string) => boolean | undefined;
+    initGenerator: (funcName: string, instanceName: string, ...args: any) => void;
     injectModule: (name: string, module: any) => any;
-    addFunction: (key: string, func: (...args: any) => any | (() => Generator)) => void;
-    addGeneratorFunction: (key: string, generatorFunc: () => Generator<any>) => () => Generator<any>;
+    addFunction: (key: string, func: (...args: any) => any) => (...args: any) => any;
+    addGeneratorFunction: (key: string, generatorFunc: (...args: any) => Generator<any>) => (...args: any) => Generator<any>;
     addConst: (key: string, value: ILiteralValue) => string | number | boolean | IJson | IJsonArray;
     setFunctions: (func: IFunctions) => void;
     setGeneratorFunctions: (generatorFuncs: IGeneratorFunctions) => void;

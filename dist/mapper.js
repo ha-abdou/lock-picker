@@ -27,6 +27,14 @@ class Mapper {
             this.generatorCallExpressions = generatorCallExpressions;
             generatorCallExpressions.map((name) => (this.generatorCounter[name] = 0));
         };
+        this.handleExpressionAsCallee = (node) => {
+            this.callExpressionDepth++;
+            node.callee = this.map(node.callee);
+            this.callExpressionDepth++;
+            node.arguments = [...node.arguments.map(this.map)];
+            this.callExpressionDepth -= 2;
+            return node;
+        };
         this.Identifier = (node) => {
             if (this.identifiers.includes(node.name)) {
                 return parser_1.parseExpression(`getVar('${node.name}')`);
@@ -35,34 +43,24 @@ class Mapper {
         };
         this.CallExpression = (node) => {
             if (node.callee.type === "CallExpression") {
-                this.callExpressionDepth++;
-                node.callee = this.map(node.callee);
-                this.callExpressionDepth++;
-                node.arguments = [...node.arguments.map(this.map)];
-                this.callExpressionDepth -= 2;
-                return node;
+                return this.handleExpressionAsCallee(node);
             }
             else if (node.callee.type !== "Identifier") {
                 return node;
             }
             let expression;
             const name = node.callee.name;
-            const count = this.generatorCounter[name];
-            // if is generator function
             if (this.generatorCallExpressions.includes(name)) {
-                // if is sync generator function that wos added to generatorCalls list
-                if (name.startsWith("$") && count !== 0) {
-                    expression = `callGeneratorFunc('_0_${name}')`;
-                }
-                else {
-                    expression = `callGeneratorFunc('_${count}_${name}')`;
-                    this.generatorCalls.push({
-                        name,
-                        depth: this.callExpressionDepth,
-                        id: count,
-                    });
-                    this.generatorCounter[name]++;
-                }
+                const count = this.generatorCounter[name];
+                const instanceName = `_${count}_${name}`;
+                expression = `callGeneratorFunc('${name}', '${instanceName}')`;
+                this.generatorCalls.push({
+                    sync: name.startsWith("$"),
+                    funcName: name,
+                    instanceName: instanceName,
+                    depth: this.callExpressionDepth,
+                });
+                this.generatorCounter[name]++;
             }
             else if (this.callExpressions.includes(name)) {
                 expression = `callFunc('${name}')`;
