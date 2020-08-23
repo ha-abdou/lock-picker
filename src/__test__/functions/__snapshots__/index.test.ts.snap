@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Functions:  function return function 1`] = `
+Array [
+  "param 1 - param 2",
+]
+`;
+
+exports[`Functions:  nested 1`] = `
+Array [
+  "hi hi ee",
+]
+`;
+
+exports[`Functions:  simple 1`] = `
+Array [
+  "hi ee",
+]
+`;
+
+exports[`Functions:  super nested 1`] = `
+Array [
+  "hi hi lolo",
+]
+`;
