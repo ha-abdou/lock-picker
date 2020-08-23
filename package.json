@@ -11,7 +11,7 @@
     "start:dev": "nodemon",
     "build": "tsc",
     "reset": "git clean -f -d -X",
-    "prepublish": "tsc && yarn jest",
+    "prepublish": "tsc && yarn test",
     "test": "jest src"
   },
   "repository": {
@@ -32,10 +32,9 @@
     "@types/jest": "^26.0.10",
     "@types/node": "^14.0.27",
     "babel-jest": "^26.3.0",
-    "faker": "^4.1.0",
     "jest": "^26.4.2",
     "nodemon": "^2.0.4",
-    "precommit-hook": "^3.0.0",
+    "pre-commit": "^1.2.2",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.7"
   },
