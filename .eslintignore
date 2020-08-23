@@ -1,0 +1,4 @@
+node_modules
+dist
+src/__test__
+src/demo

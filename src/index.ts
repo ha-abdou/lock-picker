@@ -26,10 +26,9 @@ interface IJson {
     | IJson
     | IJsonArray;
 }
-interface IJsonArray
-  extends Array<
-    string | number | null | undefined | boolean | IJson | IJsonArray
-  > {}
+type IJsonArray = Array<
+  string | number | null | undefined | boolean | IJson | IJsonArray
+>;
 
 export interface IConstants {
   [key: string]: ILiteralValue;
@@ -57,7 +56,7 @@ class LockPicker {
   modules: { [name: string]: any } = {};
   mapper = new Mapper();
   mappedTree: Node | undefined;
-  compiledExpression: string = "";
+  compiledExpression = "";
   done = false;
 
   constructor(expression: string) {
@@ -93,9 +92,12 @@ class LockPicker {
     if (this.done) {
       return;
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const getVar = (name: string) => this.constants[name];
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const callFunc = (name: string, ...args: any) =>
       this.functions[name](...args);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const callGeneratorFunc = (
       funcName: string,
       instanceName: string,

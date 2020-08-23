@@ -10,8 +10,9 @@
   "scripts": {
     "start:dev": "nodemon",
     "build": "tsc",
+    "lint": "eslint . --ext .ts",
     "reset": "git clean -f -d -X",
-    "prepublish": "tsc && yarn test",
+    "prepublish": "yarn lint && tsc && yarn test",
     "test": "jest src"
   },
   "repository": {
@@ -31,7 +32,10 @@
     "@babel/types": "^7.11.0",
     "@types/jest": "^26.0.10",
     "@types/node": "^14.0.27",
+    "@typescript-eslint/eslint-plugin": "^3.9.1",
+    "@typescript-eslint/parser": "^3.9.1",
     "babel-jest": "^26.3.0",
+    "eslint": "^7.7.0",
     "jest": "^26.4.2",
     "nodemon": "^2.0.4",
     "pre-commit": "^1.2.2",
@@ -39,6 +43,7 @@
     "typescript": "^3.9.7"
   },
   "pre-commit": [
+    "lint",
     "build",
     "test"
   ]
