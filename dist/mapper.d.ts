@@ -10,7 +10,9 @@ declare class Mapper {
         sync: boolean;
         depth: number;
     }>;
-    private generatorCounter;
+    generatorCounter: {
+        [name: string]: number;
+    };
     private callExpressionDepth;
     map: (node: Node) => any;
     setIdentifiers: (identifiers: string[]) => string[];

@@ -43,6 +43,13 @@ class LockPicker {
             this.mapper.setGeneratorCallExpressions(Object.keys(this.generatorFunctions));
             this.mappedTree = this.mapper.map(this.expression);
             this.compiledExpression = generator_1.default(this.mappedTree).code;
+            this.mapper.generatorCalls = this.mapper.generatorCalls.map((call) => {
+                if (call.sync) {
+                    call.depth = this.mapper.generatorCounter[call.funcName];
+                    return call;
+                }
+                return call;
+            });
             this.mapper.generatorCalls.sort((a, b) => a.depth - b.depth);
             this.mapper.generatorCalls.map((call) => (this.generatorInstances[call.instanceName] = null));
         };

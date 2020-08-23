@@ -27,7 +27,7 @@ class Mapper {
     sync: boolean;
     depth: number;
   }> = [];
-  private generatorCounter: { [name: string]: number } = {};
+  generatorCounter: { [name: string]: number } = {};
   private callExpressionDepth = 0;
 
   map = (node: Node): any => {

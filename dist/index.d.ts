@@ -2,11 +2,11 @@ import { Expression, Node } from "@babel/types";
 import Mapper from "./mapper";
 import { TGeneratorWithCache } from "./generatoWithCache";
 export * as Helpers from "./helpers";
-declare type ILiteralValue = string | number | boolean | IJson | IJsonArray;
+declare type ILiteralValue = string | number | boolean | null | undefined | IJson | IJsonArray;
 interface IJson {
-    [x: string]: string | number | boolean | IJson | IJsonArray;
+    [x: string]: string | number | boolean | null | undefined | IJson | IJsonArray;
 }
-interface IJsonArray extends Array<string | number | boolean | IJson | IJsonArray> {
+interface IJsonArray extends Array<string | number | null | undefined | boolean | IJson | IJsonArray> {
 }
 export interface IConstants {
     [key: string]: ILiteralValue;
@@ -44,7 +44,7 @@ declare class LockPicker {
     injectModule: (name: string, module: any) => any;
     addFunction: (key: string, func: (...args: any) => any) => (...args: any) => any;
     addGeneratorFunction: (key: string, generatorFunc: (...args: any) => Generator<any>) => (...args: any) => Generator<any>;
-    addConst: (key: string, value: ILiteralValue) => string | number | boolean | IJson | IJsonArray;
+    addConst: (key: string, value: ILiteralValue) => string | number | boolean | IJson | IJsonArray | null | undefined;
     setFunctions: (func: IFunctions) => void;
     setGeneratorFunctions: (generatorFuncs: IGeneratorFunctions) => void;
     setConsts: (constants: IConstants) => IConstants;
