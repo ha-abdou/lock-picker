@@ -1,34 +1,16 @@
-import { parseExpression } from "@babel/parser";
-import { Expression, Node } from "@babel/types";
-import generate from "@babel/generator";
-import Mapper from "./mapper";
-import functionGeneratorWithCache, {
-  TGeneratorWithCache,
-} from "./generatoWithCache";
-export * as Helpers from "./helpers";
+import { parseExpression } from '@babel/parser';
+import { Expression, Node } from '@babel/types';
+import generate from '@babel/generator';
+import Mapper from './mapper';
+import functionGeneratorWithCache, { TGeneratorWithCache } from './generatoWithCache';
+export * as Helpers from './helpers';
 
-type ILiteralValue =
-  | string
-  | number
-  | boolean
-  | null
-  | undefined
-  | IJson
-  | IJsonArray;
+type ILiteralValue = string | number | boolean | null | undefined | IJson | IJsonArray;
 
 interface IJson {
-  [x: string]:
-    | string
-    | number
-    | boolean
-    | null
-    | undefined
-    | IJson
-    | IJsonArray;
+  [x: string]: string | number | boolean | null | undefined | IJson | IJsonArray;
 }
-type IJsonArray = Array<
-  string | number | null | undefined | boolean | IJson | IJsonArray
->;
+type IJsonArray = Array<string | number | null | undefined | boolean | IJson | IJsonArray>;
 
 export interface IConstants {
   [key: string]: ILiteralValue;
@@ -56,12 +38,12 @@ class LockPicker {
   modules: { [name: string]: any } = {};
   mapper = new Mapper();
   mappedTree: Node | undefined;
-  compiledExpression = "";
+  compiledExpression = '';
   done = false;
 
   constructor(expression: string) {
-    if (!expression || typeof expression !== "string" || expression === "") {
-      throw new Error("Not valide string expression");
+    if (!expression || typeof expression !== 'string' || expression === '') {
+      throw new Error('Not valide string expression');
     }
     this.rawExpression = expression;
     this.expression = parseExpression(expression);
@@ -70,9 +52,7 @@ class LockPicker {
   compile = () => {
     this.mapper.setIdentifiers(Object.keys(this.constants));
     this.mapper.setCallExpressions(Object.keys(this.functions));
-    this.mapper.setGeneratorCallExpressions(
-      Object.keys(this.generatorFunctions)
-    );
+    this.mapper.setGeneratorCallExpressions(Object.keys(this.generatorFunctions));
     this.mappedTree = this.mapper.map(this.expression);
     this.compiledExpression = generate(this.mappedTree as Node).code;
     this.mapper.generatorCalls = this.mapper.generatorCalls.map((call) => {
@@ -83,9 +63,7 @@ class LockPicker {
       return call;
     });
     this.mapper.generatorCalls.sort((a, b) => a.depth - b.depth);
-    this.mapper.generatorCalls.map(
-      (call) => (this.generatorInstances[call.instanceName] = null)
-    );
+    this.mapper.generatorCalls.map((call) => (this.generatorInstances[call.instanceName] = null));
   };
 
   get = (): any => {
@@ -95,23 +73,15 @@ class LockPicker {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const getVar = (name: string) => this.constants[name];
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const callFunc = (name: string, ...args: any) =>
-      this.functions[name](...args);
+    const callFunc = (name: string, ...args: any) => this.functions[name](...args);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const callGeneratorFunc = (
-      funcName: string,
-      instanceName: string,
-      ...args: any
-    ) => {
-      if (
-        this.generatorInstances[instanceName] === null ||
-        this.generatorInstances[instanceName]?.().done
-      ) {
+    const callGeneratorFunc = (funcName: string, instanceName: string, ...args: any) => {
+      if (this.generatorInstances[instanceName] === null || this.generatorInstances[instanceName]?.().done) {
         this.initGenerator(funcName, instanceName, ...args);
       }
       return this.generatorInstances[instanceName]?.().value;
     };
-    let modules = "";
+    let modules = '';
     for (const name in this.modules) {
       modules += `const ${name} = this.modules['${name}'];`;
     }
@@ -126,10 +96,7 @@ class LockPicker {
     for (let i = 0; i < callsLength; i++) {
       const { sync, instanceName, funcName } = this.mapper.generatorCalls[i];
 
-      if (
-        (sync && this.syncGeneratorIterate(funcName)) ||
-        (!sync && this.generatorIterate(instanceName))
-      ) {
+      if ((sync && this.syncGeneratorIterate(funcName)) || (!sync && this.generatorIterate(instanceName))) {
         continue;
       }
       return true;
@@ -155,24 +122,17 @@ class LockPicker {
   };
 
   initGenerator = (funcName: string, instanceName: string, ...args: any) => {
-    this.generatorInstances[instanceName] = functionGeneratorWithCache(
-      this.generatorFunctions[funcName],
-      ...args
-    );
+    this.generatorInstances[instanceName] = functionGeneratorWithCache(this.generatorFunctions[funcName], ...args);
   };
 
   injectModule = (name: string, module: any) => (this.modules[name] = module);
 
-  addFunction = (key: string, func: (...args: any) => any) =>
-    (this.functions[key] = func);
+  addFunction = (key: string, func: (...args: any) => any) => (this.functions[key] = func);
 
-  addGeneratorFunction = (
-    key: string,
-    generatorFunc: (...args: any) => Generator<any>
-  ) => (this.generatorFunctions[key] = generatorFunc);
+  addGeneratorFunction = (key: string, generatorFunc: (...args: any) => Generator<any>) =>
+    (this.generatorFunctions[key] = generatorFunc);
 
-  addConst = (key: string, value: ILiteralValue) =>
-    (this.constants[key] = value);
+  addConst = (key: string, value: ILiteralValue) => (this.constants[key] = value);
 
   setFunctions = (func: IFunctions) => {
     this.functions = {};

@@ -7,17 +7,11 @@ import {
   ArrayExpression,
   SpreadElement,
   Node,
-} from "@babel/types";
-import { parseExpression } from "@babel/parser";
+} from '@babel/types';
+import { parseExpression } from '@babel/parser';
 
 class Mapper {
-  static literalHasValue = [
-    "StringLiteral",
-    "NumericLiteral",
-    "BooleanLiteral",
-    "BigIntLiteral",
-    "DecimalLiteral",
-  ];
+  static literalHasValue = ['StringLiteral', 'NumericLiteral', 'BooleanLiteral', 'BigIntLiteral', 'DecimalLiteral'];
   identifiers: string[] = [];
   callExpressions: string[] = [];
   generatorCallExpressions: string[] = [];
@@ -35,7 +29,7 @@ class Mapper {
       return node;
     }
     // @ts-ignore
-    if (typeof this[node.type] === "function") {
+    if (typeof this[node.type] === 'function') {
       // @ts-ignore
       return this[node.type](node);
     }
@@ -45,8 +39,7 @@ class Mapper {
 
   setIdentifiers = (identifiers: string[]) => (this.identifiers = identifiers);
 
-  setCallExpressions = (callExpressions: string[]) =>
-    (this.callExpressions = callExpressions);
+  setCallExpressions = (callExpressions: string[]) => (this.callExpressions = callExpressions);
 
   setGeneratorCallExpressions = (generatorCallExpressions: string[]) => {
     this.generatorCallExpressions = generatorCallExpressions;
@@ -70,9 +63,9 @@ class Mapper {
   };
 
   private CallExpression = (node: CallExpression): Node => {
-    if (node.callee.type === "CallExpression") {
+    if (node.callee.type === 'CallExpression') {
       return this.handleExpressionAsCallee(node);
-    } else if (node.callee.type !== "Identifier") {
+    } else if (node.callee.type !== 'Identifier') {
       return node;
     }
     let expression;
@@ -84,7 +77,7 @@ class Mapper {
 
       expression = `callGeneratorFunc('${name}', '${instanceName}')`;
       this.generatorCalls.push({
-        sync: name.startsWith("$"),
+        sync: name.startsWith('$'),
         funcName: name,
         instanceName: instanceName,
         depth: this.callExpressionDepth,
@@ -135,8 +128,7 @@ class Mapper {
     return node;
   };
 
-  static hasLetiralValue = (type: string): boolean =>
-    Mapper.literalHasValue.includes(type);
+  static hasLetiralValue = (type: string): boolean => Mapper.literalHasValue.includes(type);
 }
 
 export default Mapper;
